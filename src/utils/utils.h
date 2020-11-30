@@ -158,3 +158,7 @@ inline ostream& operator<<(ostream& os, const EvaluatedMoves& moves)
     return os;
 }
 
+inline bool operator==(const BoardBin& a, const BoardBin& b)
+{
+    return a.dam == b.dam && a.own == b.own && a.enemy && b.enemy;
+}

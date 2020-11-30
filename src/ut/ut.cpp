@@ -183,7 +183,8 @@ bool ut_hit_dam_turkey()
     r._hit_dam(b.own & ~(1 << n), b.enemy, n, lst);
     cout << lst << endl << "done " << n << endl;
 
-    return true;
+    bool result = lst.size() == 1 && lst[0].n == 18;
+    return result;
 }
 
 bool ut_move_list_1()
@@ -329,6 +330,16 @@ bool ut_move_list_6()
             " . . . o"
             ". . X o "
         ;
+    const  char* expected =
+            " . . . ."
+            ". x . x "
+            " . . . ."
+            "o . . . "
+            " X . x ."
+            ". . . . "
+            " . . . o"
+            ". . * o "
+            ;
     BoardBin b = brd(string(str));
     BoardGeometry g(8);
     Rules r(g);
@@ -340,7 +351,10 @@ bool ut_move_list_6()
     cout << __FUNCTION__<< endl;
     r.move_list_enemy(b, moves);
     cout << moves << endl;
-    return true;
+    bool result = moves.size() == 1 && moves[0].n == 16 && moves[0].n0 == 30;
+    if(!result)
+        cout << "expected:" << endl << expected << endl;
+    return result;
 }
 
 

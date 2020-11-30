@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+//#include <QCoreApplication>
 #include <iostream>
 #include "..\..\src\ut\ut.h"
 
@@ -6,20 +6,23 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    //QCoreApplication a(argc, argv);
+    (void) argc;
+    (void) argv;
+    bool test_ok = true;
 
-    cout << "qt console application" << endl;
+    cout << "unit tests" << endl;
 
     //ut_rules_check();
     //ut_hit_unit();
     //ut_hit_dam();
-    //ut_hit_dam_turkey();
+    test_ok &= ut_hit_dam_turkey();
     //ut_move_list_1();
     //ut_move_list_2();
     //ut_move_list_3();
     //ut_move_list_4();
     //ut_move_list_5();
-    ut_move_list_6();
+    test_ok &= ut_move_list_6();
 
     //ut_dumb_play();
     //ut_ai_test();
@@ -28,5 +31,8 @@ int main(int argc, char *argv[])
 
     //ut_bsr_build();
 
-    return a.exec();   
+    cout << (test_ok ? "passed" : "failed") << endl;
+
+    //return a.exec();
+    return test_ok ? 0 : -1;
 }
