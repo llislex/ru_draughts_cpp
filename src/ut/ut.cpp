@@ -5,7 +5,7 @@
 #include "..\rules\board.h"
 #include "..\rules\rules.h"
 #include "..\utils\utils.h"
-#include "..\rules\ai.h"
+#include "..\ai\ai.h"
 
 
 using namespace std;

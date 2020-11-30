@@ -27,7 +27,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../../src/rules/ai.h \
     ../../src/rules/board.h \
     ../../src/rules/rules.h \
     ../../src/ut/ut.h \

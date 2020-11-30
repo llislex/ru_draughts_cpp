@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     cout << "unit tests" << endl;
 
-    //ut_rules_check();
+    //test_ok &= ut_rules_check();
     //ut_hit_unit();
     //ut_hit_dam();
     test_ok &= ut_hit_dam_turkey();

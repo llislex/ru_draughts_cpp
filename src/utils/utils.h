@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "..\rules\rules.h"
-#include "..\rules\ai.h"
+#include "..\ai\ai.h"
 #include <time.h>
 #include <chrono>
 
