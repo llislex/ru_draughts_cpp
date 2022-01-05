@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QDebug>
 #include "rules.h"
 #include "board.h"
 #include "ai.h"
@@ -16,6 +17,8 @@ public:
     BoardBin m_b;
     Rules::Move best_move;
     bool valid_move;
+    int eval;
+    int depth;
 
     void init(const BoardBin& b, bool is_white, Rules* r)
     {
@@ -29,14 +32,16 @@ public:
         BoardStat bs(m_b, m_r->bg);
         unsigned ply = ply_policy(bs.own_units + bs.enemy_units, bs.own_dams + bs.enemy_dams);
         EvaluatedMoves moves;
-        int eval = build_game_tree(m_b, *m_r, white_turn, ply, moves);
-        EvaluatedMoves bm = best_moves(moves, eval);
+        eval = build_game_tree(m_b, *m_r, white_turn, ply, moves);
+        depth = ply;
         valid_move = moves.size() > 0;
         if(valid_move)
         {
+            EvaluatedMoves bm = moves_with_eval(moves, eval);
+            //qDebug() << bm;
+            srand(time(0));
             unsigned choise = rand() % bm.size();
             best_move = bm[choise].move;
-            valid_move = true;
         }
     }
 };
