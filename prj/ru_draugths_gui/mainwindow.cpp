@@ -73,9 +73,11 @@ void MainWindow::on_tw_cellPressed(int row, int column)
     }
 }
 
-void MainWindow::apply_move(const Rules::Move& m)
+void MainWindow::apply_move(const Rules::Move& m, int eval, int depth)
 {
-    setWindowTitle(QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n));
+    QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n);
+    title += QString("  (eval %1 depth %2)").arg(eval).arg(depth);
+    setWindowTitle(title);
     start_move_index = -1;
     white_move = !white_move;
     set_board(m.b);
@@ -163,12 +165,15 @@ void MainWindow::ai_move()
     {
         bool valid = move_maker->valid_move;
         Rules::Move m = move_maker->best_move;
+        int depth = move_maker->depth;
+        int eval = move_maker->eval;
         disconnect(move_maker, &QThread::finished, this, &MainWindow::ai_move);
         delete move_maker;
         move_maker = 0;
+
         if(valid)
         {
-            apply_move(m);
+            apply_move(m, eval, depth);
         }
     }
 }
