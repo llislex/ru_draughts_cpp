@@ -38,7 +38,6 @@ public:
         if(valid_move)
         {
             EvaluatedMoves bm = moves_with_eval(moves, eval);
-            //qDebug() << bm;
             srand(time(0));
             unsigned choise = rand() % bm.size();
             best_move = bm[choise].move;
