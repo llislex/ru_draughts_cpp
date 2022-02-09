@@ -75,9 +75,12 @@ void MainWindow::on_tw_cellPressed(int row, int column)
 
 void MainWindow::apply_move(const Rules::Move& m, int eval, int depth)
 {
-    QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n);
-    title += QString("  (eval %1 depth %2)").arg(eval).arg(depth);
-    setWindowTitle(title);
+    if(depth > 0)
+    {
+        QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n);
+        title += QString("  (eval %1 depth %2)").arg(eval).arg(depth);
+        setWindowTitle(title);
+    }
     start_move_index = -1;
     white_move = !white_move;
     set_board(m.b);

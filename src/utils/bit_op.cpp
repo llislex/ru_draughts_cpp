@@ -1,5 +1,5 @@
 #include "bit_op.h"
-#if 1 //NO INTRINSIC
+#if 0 //NO INTRINSIC
 #define BITN(bmp, n) if(bmp & (1 << n)) return n
 unsigned lsb(unsigned bmp)
 {
@@ -81,17 +81,16 @@ unsigned bitcount(unsigned i)
     i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
     return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
-
 #else
 #include <intrin.h>
-unsigned lsb(unsigned bmp)
+unsigned msb(unsigned bmp)
 {
     unsigned long position;
     _BitScanReverse(&position, bmp);
     return position;
 }
 
-unsigned msb(unsigned bmp)
+unsigned lsb(unsigned bmp)
 {
     unsigned long position;
     _BitScanForward(&position, bmp);
@@ -103,7 +102,6 @@ unsigned bitcount(unsigned bmp)
     return __popcnt(bmp);
 }
 #endif //INTRINCIC
-
 unsigned take_msb(unsigned& bmp)
 {
     unsigned n = msb(bmp);
