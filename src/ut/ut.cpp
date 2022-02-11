@@ -549,7 +549,7 @@ bool ut_ai_test()
     cout << moves << endl;
 
     cout << endl << "****  Best moves **** " << endl << endl;
-    cout << best_moves(moves, eval) << endl;
+    cout << moves_with_eval(moves, eval) << endl;
 
     // cout << "eval " << eval << endl;
     return true;
@@ -582,7 +582,7 @@ bool ut_ai_play()
         TookTime t;
         EvaluatedMoves moves;
         int eval = build_game_tree(b, r, white_turn, ply, moves);
-        EvaluatedMoves bm = best_moves(moves, eval);
+        EvaluatedMoves bm = moves_with_eval(moves, eval);
         if (bm.size() == 0)
         {
             cout << (white_turn ? "Black win" : "White win") << endl;

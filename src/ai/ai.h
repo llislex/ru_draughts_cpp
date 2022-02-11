@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include <assert.h>
+#include <algorithm>
 
 #define MAX_EVAL 126
 #define MIN_EVAL -126
