@@ -7,7 +7,7 @@ void GameUnitDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
     {
         int ch = qvariant_cast<int>(index.data());
         bool selected = opt.state & QStyle::State_Selected;
-        painter->fillRect(opt.rect, selected ? opt.palette.highlight() : opt.palette.background());
+        painter->fillRect(opt.rect, selected ? opt.palette.highlight() : opt.palette.window());
         switch(ch)
         {
         case 'x':
@@ -30,12 +30,11 @@ void GameUnitDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
 
 BoardGui::BoardGui(QWidget *parent) :
     QTableWidget(parent),
-    unit_delegate(parent),
-    N(0)
+    N(0),
+    unit_delegate(parent)
 {
     this->setItemDelegate(&unit_delegate);
 }
-
 
 QTableWidgetItem* new_active_site()
 {
