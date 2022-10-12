@@ -1,5 +1,5 @@
 #include "bit_op.h"
-#if 0 //NO INTRINSIC
+#if 1 //NO INTRINSIC
 #define BITN(bmp, n) if(bmp & (1 << n)) return n
 unsigned lsb(unsigned bmp)
 {

@@ -1,18 +1,47 @@
 #include "boardgui.h"
+#include <QPainter>
 
-
-BoardGui::BoardGui(QWidget *parent) : QTableWidget(parent), N(0)
+void GameUnitDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {
+    if(index.data().canConvert<int>())
+    {
+        int ch = qvariant_cast<int>(index.data());
+        bool selected = opt.state & QStyle::State_Selected;
+        painter->fillRect(opt.rect, selected ? opt.palette.highlight() : opt.palette.background());
+        switch(ch)
+        {
+        case 'x':
+            painter->drawImage(opt.rect, b_unit);
+            break;
+        case 'X':
+            painter->drawImage(opt.rect, b_dam);
+            break;
+        case 'o':
+            painter->drawImage(opt.rect, w_unit);
+            break;
+        case 'O':
+            painter->drawImage(opt.rect, w_dam);
+            break;
+        }
+    }
+    else
+        QStyledItemDelegate::paint(painter, opt, index);
+}
+
+BoardGui::BoardGui(QWidget *parent) :
+    QTableWidget(parent),
+    unit_delegate(parent),
+    N(0)
+{
+    this->setItemDelegate(&unit_delegate);
 }
 
 
 QTableWidgetItem* new_active_site()
 {
     QTableWidgetItem* it = new QTableWidgetItem(QTableWidgetItem::UserType);
-    it->setBackground(QBrush(QColor(0,0,0)));
-    //it->setTextColor(QColor(255,255,255));
-    it->setForeground(QBrush(QColor(255, 255, 255)));
-    it->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    it->setBackground(QBrush(QColor(255, 255, 255)));
+    it->setForeground(QBrush(QColor(0,0,0)));
     return it;
 }
 
@@ -34,31 +63,10 @@ void BoardGui::init(int N)
         setColumnWidth(r, rowHeight(r));
         for(int c = 0; c < N; ++c)
         {
-            if(this->acitve_site(r, c))
-            {
-                QTableWidgetItem* it = new_active_site();
-                this->setItem(r, c, it);
-            }
-            else
-            {
-                QTableWidgetItem* it = passive_site();
-                this->setItem(r, c, it);
-            }
+            QTableWidgetItem* it = this->acitve_site(r, c) ? new_active_site() : passive_site();
+            this->setItem(r, c, it);
         }
     }
-}
-
-int font_resize(int size, const QFont& base_font)
-{
-    for(int fontSize = 1; true; ++fontSize)
-    {
-        QFont f(base_font);
-        f.setPixelSize( fontSize );
-        QRect r = QFontMetrics(f).boundingRect("X");
-        if (r.width() >= size || r.height() >= size)
-            return fontSize - 1;
-    }
-    return base_font.pixelSize();
 }
 
 void BoardGui::resizeEvent(QResizeEvent* evt)
@@ -68,11 +76,6 @@ void BoardGui::resizeEvent(QResizeEvent* evt)
         int size = qMin(evt->size().width(), evt->size().height()) / N ;
         for (int i = 0; (unsigned) i < N; ++i)
         {
-            /*int fsz = font_resize(size / 2, font());
-            QFont f(font());
-            f.setPixelSize(fsz);
-            setFont(f);*/
-
             setColumnWidth(i, size);
             setRowHeight(i, size);
         }
@@ -84,13 +87,12 @@ void BoardGui::setGameItem(unsigned index, char ch)
 {
     QTableWidgetItem* it = itemByIndex(index);
     it->setTextAlignment(Qt::AlignCenter);
-    if(it) it->setText(QString(QChar(ch)));
-}
-
-void BoardGui::setGameItem(unsigned index, const QIcon& img)
-{
-    QTableWidgetItem* it = itemByIndex(index);
-    if(it) it->setIcon(img);
+    if(it)
+    {
+        it->setText(QString(QChar(ch)));
+        int i = ch;
+        it->setData(0, QVariant(i));
+    }
 }
 
 void BoardGui::setSelectable(unsigned index)

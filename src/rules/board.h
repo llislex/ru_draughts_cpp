@@ -18,7 +18,7 @@ struct BoardBin
 */
 struct BoardGeometry
 {
-    unsigned col_index(unsigned n) const { return n % (size / 2); };
+    unsigned col_index(unsigned n) const { return n % (size / 2); }
     int row(unsigned n) const { return n / (size / 2); }
     int col(unsigned n) const { return col_index(n) * 2 + 1 - (row(n) % 2); }
     bool outside(int index) const { return index < 0 || index >= size; }

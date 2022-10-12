@@ -26,3 +26,6 @@ INCLUDEPATH += ../../src/rules/ \
     ../../src/utils/
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    images.qrc
