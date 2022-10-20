@@ -31,7 +31,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
 public:
     GameUnitDelegate unit_delegate;
-
     QTableWidgetItem* itemByIndex(unsigned index) const;
     explicit BoardGui(QWidget *parent = 0);
     void init(int N = 8);
