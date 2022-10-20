@@ -1,7 +1,7 @@
 #ifndef AI_H
 #define AI_H
 
-#include "..\rules\rules.h"
+#include "rules.h"
 #include <list>
 #include <vector>
 #include <assert.h>

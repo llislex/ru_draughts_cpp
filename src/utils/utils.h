@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "..\rules\rules.h"
-#include "..\ai\ai.h"
+#include "rules.h"
+#include "ai.h"
 #include <time.h>
 #include <chrono>
 
@@ -20,7 +20,7 @@ struct TookTime
 {
     uint64_t ts;
     TookTime(): ts(timestamp()){}
-    uint64_t took_time_ms() const { return timestamp() - ts;};
+    uint64_t took_time_ms() const { return timestamp() - ts;}
 };
 
 //return errno

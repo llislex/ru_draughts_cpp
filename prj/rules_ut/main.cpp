@@ -1,6 +1,6 @@
 //#include <QCoreApplication>
 #include <iostream>
-#include "..\..\src\ut\ut.h"
+#include "ut.h"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
 #include "board.h"
-#include "..\utils\bit_op.h"
+#include "bit_op.h"
 
 BoardStat::BoardStat(const BoardBin& b, const BoardGeometry& g, BoardBitmap marker)
     : b(b), g(g), marker(marker),

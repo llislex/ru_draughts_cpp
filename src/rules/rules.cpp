@@ -1,5 +1,5 @@
 #include "rules.h"
-#include "..\utils\bit_op.h"
+#include "bit_op.h"
 #include <assert.h>
 
 

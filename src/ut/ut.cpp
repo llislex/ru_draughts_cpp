@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-#include "..\rules\board.h"
-#include "..\rules\rules.h"
-#include "..\utils\utils.h"
-#include "..\ai\ai.h"
+#include "board.h"
+#include "rules.h"
+#include "utils.h"
+#include "ai.h"
 
 
 using namespace std;
