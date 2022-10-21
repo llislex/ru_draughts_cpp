@@ -2,7 +2,6 @@
 #include "bit_op.h"
 #include <assert.h>
 
-
 Rules::Rules(const BoardGeometry& bg): bg(bg), dam_target(0),dam_target_enemy(0)
 {
     for (unsigned i = 0; i < bg.N; ++i) //build ways map
@@ -425,4 +424,24 @@ bool Rules::move_list_enemy(const BoardBin& b, Moves& m) const
         m.insert(m.end(), moves.begin(), moves.end());
     }
     return hit_happened;
+}
+
+
+BoardBin Rules::_control_area(const BoardBin& b) const
+{
+    BoardBin ca = {0, 0, 0};
+    const BoardBitmap empty = ~(b.enemy | b.own);
+    BoardBitmap own = b.own;
+    while (own)
+    {
+        unsigned n = take_msb(own);
+        ca.own |= ways[n] & empty;
+    }
+    BoardBitmap enemy = b.enemy;
+    while (enemy)
+    {
+        unsigned n = take_msb(enemy);
+        ca.enemy |= ways[n] & empty;
+    }
+    return ca;
 }

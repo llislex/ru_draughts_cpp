@@ -52,7 +52,6 @@ struct BoardStat
     const BoardGeometry& g;
     const BoardBitmap marker;
     char unit_symbol(unsigned n) const;
-    int evaluate() const;
     const int own_units;
     const int own_dams;
     const int enemy_units;

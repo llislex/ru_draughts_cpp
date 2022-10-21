@@ -2,13 +2,14 @@
 #define AI_H
 
 #include "rules.h"
+#include "bit_op.h"
 #include <list>
 #include <vector>
 #include <assert.h>
 #include <algorithm>
 
-#define MAX_EVAL 126
-#define MIN_EVAL -126
+#define MAX_EVAL (126 * 256)
+#define MIN_EVAL -(MAX_EVAL)
 
 struct EvaluatedMove
 {
@@ -18,6 +19,56 @@ struct EvaluatedMove
 };
 
 typedef std::vector<EvaluatedMove> EvaluatedMoves;
+
+
+inline int evaluate(const BoardBin& b)
+{
+    const int own_units = bitcount(b.own);
+    if (own_units == 0)
+        return MIN_EVAL;
+    const int enemy_units = bitcount(b.enemy);
+    if(enemy_units == 0)
+        return MAX_EVAL;
+
+    int eval = own_units - enemy_units;
+    if(b.dam)
+    {
+        eval += bitcount(b.own & b.dam) << 1;
+        eval -= bitcount(b.enemy & b.dam) << 1;
+    }
+    return eval;
+}
+
+inline int extended_evaluate(const BoardBin& b, const Rules& r)
+{
+    const int own_units = bitcount(b.own);
+    if (own_units == 0)
+        return MIN_EVAL;
+    const int enemy_units = bitcount(b.enemy);
+    if(enemy_units == 0)
+        return MAX_EVAL;
+
+    int eval = own_units - enemy_units;
+    if(b.dam)
+    {
+        eval += bitcount(b.own & b.dam) << 1;
+        eval -= bitcount(b.enemy & b.dam) << 1;
+    }
+    eval <<= 8;
+
+#if 1
+    if (b.dam == 0)
+    {
+        const BoardBin ca = r._control_area(b);
+        eval += bitcount(ca.own) - bitcount(ca.enemy);
+    }
+    else
+    {
+        //TODO
+    }
+#endif
+    return eval;
+}
 
 inline EvaluatedMoves moves_with_eval(const EvaluatedMoves& moves, int eval)
 {
@@ -32,7 +83,8 @@ inline int negamax(const BoardBin& b, const Rules& r, bool white, unsigned depth
 {
     if(depth == 0)
     {
-        int eval = BoardStat(b, r.bg).evaluate();
+        //int eval = BoardStat(b, r.bg).evaluate();
+        int eval = extended_evaluate(b, r);
         return white ? eval : -eval;
     }
     int result = MIN_EVAL;

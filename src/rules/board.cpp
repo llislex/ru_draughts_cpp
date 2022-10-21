@@ -8,13 +8,6 @@ BoardStat::BoardStat(const BoardBin& b, const BoardGeometry& g, BoardBitmap mark
 {
 }
 
-int BoardStat::evaluate() const
-{
-    if (own_units == 0) return -127;
-    if (enemy_units == 0) return 127;
-    return own_units + 2 * own_dams - enemy_units - 2 * enemy_dams;
-}
-
 char BoardStat::unit_symbol(unsigned n) const
 {
     const unsigned mask = 1 << n;

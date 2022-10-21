@@ -54,6 +54,8 @@ public:
     bool _move_dam_enemy(const BoardBin& b, unsigned n, Moves& moves) const;
     bool move_list_enemy(const BoardBin& b, Moves& moves) const;
 
+    BoardBin _control_area(const BoardBin& b) const;
+
     BoardBin apply_move(const BoardBin& b, bool own, unsigned n0, unsigned n1) const;
 
 	Rules(const BoardGeometry& bg);
