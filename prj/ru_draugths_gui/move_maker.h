@@ -7,6 +7,7 @@
 #include "rules.h"
 #include "board.h"
 #include "ai.h"
+#include "utils.h"
 
 class MoveMaker: public QThread
 {
@@ -19,6 +20,7 @@ public:
     bool valid_move;
     int eval;
     int depth;
+    uint64_t took_time;
 
     void init(const BoardBin& b, bool is_white, Rules* r)
     {
@@ -26,9 +28,11 @@ public:
         m_b = b;
         m_r = r;
         valid_move = false;
+        took_time = 0;
     }
     void run() override
     {
+        TookTime tt;
         BoardStat bs(m_b, m_r->bg);
         unsigned ply = ply_policy(bs.own_units + bs.enemy_units, bs.own_dams + bs.enemy_dams);
         EvaluatedMoves moves;
@@ -42,6 +46,7 @@ public:
             unsigned choise = rand() % bm.size();
             best_move = bm[choise].move;
         }
+        took_time = tt.took_time_ms();
     }
 };
 

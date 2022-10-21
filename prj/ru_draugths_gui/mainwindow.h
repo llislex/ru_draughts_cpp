@@ -37,7 +37,7 @@ protected:
     Rules::Moves::const_iterator is_end_move(unsigned i, int start_index) const;
     int start_move_index;
 
-    void apply_move(const Rules::Move& m, int eval = 0, int depth = 0);
+    void apply_move(const Rules::Move& m, int eval = 0, int depth = 0, uint64_t took_time = 0);
     void set_board(const BoardBin& bx);
 public:
     explicit MainWindow(QWidget *parent = 0);

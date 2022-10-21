@@ -73,13 +73,14 @@ void MainWindow::on_tw_cellPressed(int row, int column)
     }
 }
 
-void MainWindow::apply_move(const Rules::Move& m, int eval, int depth)
+void MainWindow::apply_move(const Rules::Move& m, int eval, int depth, uint64_t took_time)
 {
     if(depth > 0)
     {
         QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n);
-        title += QString("  (eval %1 depth %2)").arg(eval).arg(depth);
+        title += QString("  (eval %1 depth %2 elapsed %3 ms)").arg(eval).arg(depth).arg(took_time);
         setWindowTitle(title);
+        this->statusBar()->showMessage(title);
     }
     start_move_index = -1;
     white_move = !white_move;
@@ -170,13 +171,14 @@ void MainWindow::ai_move()
         Rules::Move m = move_maker->best_move;
         int depth = move_maker->depth;
         int eval = move_maker->eval;
+        uint64_t took_time = move_maker->took_time;
         disconnect(move_maker, &QThread::finished, this, &MainWindow::ai_move);
         delete move_maker;
         move_maker = 0;
 
         if(valid)
         {
-            apply_move(m, eval, depth);
+            apply_move(m, eval, depth, took_time);
         }
     }
 }
