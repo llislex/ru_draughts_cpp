@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     //ut_dumb_play();
     //ut_ai_test();
     //ut_ai_test_2();
-    //ut_ai_play();
+    ut_ai_play();
 
     //ut_bsr_build();
 

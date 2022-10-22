@@ -14,12 +14,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += \
+    ../../src/utils \
+    ../../src/ut \
+    ../../src/rules \
+    ../../src/ai
+
 SOURCES += \
     ../../src/rules/board.cpp \
     ../../src/rules/rules.cpp \
     ../../src/ut/ut.cpp \
     ../../src/utils/bit_op.cpp \
-    main.cpp
+    ../../prj/rules_ut/main.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,6 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ../../src/rules/board.h \
     ../../src/rules/rules.h \
+    ../../src/ai/ai.h \
     ../../src/ut/ut.h \
     ../../src/utils/bit_op.h \
     ../../src/utils/utils.h

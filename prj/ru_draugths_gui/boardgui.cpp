@@ -1,5 +1,6 @@
 #include "boardgui.h"
 #include <QPainter>
+#include <assert.h>
 
 void GameUnitDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {

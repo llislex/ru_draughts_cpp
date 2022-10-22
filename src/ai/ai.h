@@ -20,7 +20,7 @@ struct EvaluatedMove
 
 typedef std::vector<EvaluatedMove> EvaluatedMoves;
 
-
+#if 0
 inline int evaluate(const BoardBin& b)
 {
     const int own_units = bitcount(b.own);
@@ -38,6 +38,7 @@ inline int evaluate(const BoardBin& b)
     }
     return eval;
 }
+#endif
 
 inline int extended_evaluate(const BoardBin& b, const Rules& r)
 {
@@ -133,7 +134,7 @@ inline unsigned ply_policy_ex(unsigned units, unsigned dam_units)
 {
     /*if (dam_units > 1)
         return 6;*/
-    units += dam_units * 3;
+    units += dam_units * 2;
     if(units < 4)
         return 12;
     if(units < 6)
@@ -147,7 +148,7 @@ inline unsigned ply_policy_ex(unsigned units, unsigned dam_units)
 
 inline unsigned ply_policy(unsigned units, unsigned dam_units)
 {
-    return ply_policy_ex(units, dam_units) + 3;
+    return ply_policy_ex(units, dam_units) + 4;
 }
 
 #endif // AI_H
