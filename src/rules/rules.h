@@ -12,8 +12,6 @@ struct Move
     BoardBitmap visited;
 };
 
-#define RUSSIAN_DAM_RULES 1
-
 class Rules
 {
 public:

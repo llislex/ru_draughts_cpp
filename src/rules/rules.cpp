@@ -21,8 +21,8 @@ Rules::Rules(const BoardGeometry& bg): bg(bg), dam_target(0),dam_target_enemy(0)
     }
     for (int i = 0; i < bg.size / 2; ++i)
     {
-        dam_target |= 1 << i;
-        dam_target_enemy |= (1 << 31) >> i;
+        dam_target |= BIT_MASK(i);
+        dam_target_enemy |= BIT_MASK(bg.N - 1) >> i;
     }
 }
 
@@ -52,6 +52,7 @@ bool Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, M
 #if (RUSSIAN_DAM_RULES == 1)
                     bool is_final = (dam_target & new_pos_mask) ? !_hit_dam(own, enemy, new_n, moves, new_taken, opposite_dir[d]) : !_hit(own, enemy, new_n, moves, new_taken);
 #else
+                    //TODO majority rule is not implemented
                     bool is_final = !_hit(own, enemy, new_n, moves, new_taken);
 #endif
                     if (is_final)
@@ -107,13 +108,13 @@ bool Rules::_hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned 
                             do
                             {
                                 unsigned new_pos = take_msb(to_jump_dir);
-                                BoardBitmap new_taken = taken | (1 << hit_target);
+                                BoardBitmap new_taken = taken | BIT_MASK(hit_target);
                                 result = true;
                                 all_final &= !_hit_dam(own, enemy, new_pos, moves, new_taken, new_back_dir);
                                 if (all_final)
                                 {
                                     Move m = make_move(own, enemy & ~new_taken, new_pos, true);
-                                    m.b.dam = 1 << new_pos;
+                                    m.b.dam = BIT_MASK(new_pos);
                                     final_hits.push_back(m);
                                 }
                             } while (to_jump_dir);
@@ -144,11 +145,11 @@ Rules::Move Rules::make_move(const BoardBin& bx, unsigned n0, unsigned n, bool d
     Move m;
     m.n = n;
     m.n0 = n0;
-    m.b.own = (bx.own & ~(1 << n0)) | (1 << n);
+    m.b.own = (bx.own & ~BIT_MASK(n0)) | BIT_MASK(n);
     m.b.enemy = bx.enemy;
-    m.b.dam = bx.dam & ~(1 << n0);
+    m.b.dam = bx.dam & ~BIT_MASK(n0);
     if (dam)
-        m.b.dam |= 1 << n;
+        m.b.dam |= BIT_MASK(n);
     return m;
 }
 
@@ -156,9 +157,9 @@ Rules::Move Rules::make_move(const BoardBitmap& own, const BoardBitmap& enemy, u
 {
     Move m;
     m.n = n;
-    m.b.own = own | (1 << n);
+    m.b.own = own | BIT_MASK(n);
     m.b.enemy = enemy;
-    m.b.dam = dam ? (1 << n) : 0;
+    m.b.dam = dam ? BIT_MASK(n) : 0;
     return m;
 }
 
@@ -168,10 +169,10 @@ Rules::Move Rules::make_move_enemy(const BoardBin& bx, unsigned n0, unsigned n, 
     m.n = n;
     m.n0 = n0;
     m.b.own = bx.own;
-    m.b.enemy = (bx.enemy & ~(1 << n0)) | (1 << n);
-    m.b.dam = bx.dam & ~(1 << n0);
+    m.b.enemy = (bx.enemy & ~BIT_MASK(n0)) | BIT_MASK(n);
+    m.b.dam = bx.dam & ~BIT_MASK(n0);
     if (dam)
-        m.b.dam |= 1 << n;
+        m.b.dam |= BIT_MASK(n);
     return m;
 }
 
@@ -180,8 +181,8 @@ Rules::Move Rules::make_move_enemy(const BoardBitmap& own, const BoardBitmap& en
     Move m;
     m.n = n;
     m.b.own = own;
-    m.b.enemy = enemy | (1 << n);
-    m.b.dam = dam ? 1 << n : 0;
+    m.b.enemy = enemy | BIT_MASK(n);
+    m.b.dam = dam ? BIT_MASK(n) : 0;
     return m;
 }
 
@@ -192,7 +193,7 @@ bool Rules::_move(const BoardBin& b, unsigned n, Moves& moves) const
     while (move_mask)
     {
         unsigned n1 = take_lsb(move_mask);
-        Move m = make_move(b, n, n1, (dam_target & (1 << n1)));
+        Move m = make_move(b, n, n1, (dam_target & BIT_MASK(n1)));
         moves.push_back(m);
     }
     return result;
@@ -232,7 +233,7 @@ bool Rules::move_list(const BoardBin& b, Moves& m) const
     {
         Moves hits;
         unsigned n = take_msb(own);
-        const BoardBitmap mask = 1 << n;
+        const BoardBitmap mask = BIT_MASK(n);
         const bool dam = (b.dam & mask) != 0;
         dam ?  _hit_dam(b.own & ~mask, b.enemy, n, hits) : _hit(b.own & ~mask, b.enemy, n, hits);
         if(hits.size() > 0)
@@ -333,13 +334,13 @@ bool Rules::_hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, uns
                             do
                             {
                                 unsigned new_pos = take_msb(to_jump_dir);
-                                BoardBitmap new_taken = taken | (1 << hit_target);
+                                BoardBitmap new_taken = taken | BIT_MASK(hit_target);
                                 result = true;
                                 all_final &= !_hit_dam_enemy(own, enemy, new_pos, moves, new_taken, new_back_dir);
                                 if (all_final)
                                 {
                                     Move m = make_move_enemy(own & ~new_taken, enemy, new_pos, true);
-                                    m.b.dam = 1 << new_pos;
+                                    m.b.dam = BIT_MASK(new_pos);
                                     final_hits.push_back(m);
                                 }
                             } while (to_jump_dir);
@@ -364,7 +365,7 @@ bool Rules::_move_enemy(const BoardBin& b, unsigned n, Moves& moves) const
     while (move_mask)
     {
         unsigned n1 = take_msb(move_mask);
-        Move m = make_move_enemy(b, n, n1, (dam_target_enemy & (1 << n1)));
+        Move m = make_move_enemy(b, n, n1, dam_target_enemy & BIT_MASK(n1));
         moves.push_back(m);
     }
     return result;
@@ -404,7 +405,7 @@ bool Rules::move_list_enemy(const BoardBin& b, Moves& m) const
     {
         Moves hits;
         unsigned n = take_msb(enemy);
-        const BoardBitmap mask = 1 << n;
+        const BoardBitmap mask = BIT_MASK(n);
         const bool dam = (b.dam & mask) != 0;
         dam ?  _hit_dam_enemy(b.own, b.enemy & ~mask, n, hits) : _hit_enemy(b.own, b.enemy & ~mask, n, hits);
         if(hits.size() > 0)

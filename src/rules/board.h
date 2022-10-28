@@ -1,6 +1,7 @@
 #pragma once
+#include "settings.h"
 
-typedef unsigned BoardBitmap;
+typedef bitmap_t BoardBitmap;
 
 struct BoardBin
 {

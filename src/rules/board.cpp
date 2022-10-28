@@ -10,7 +10,7 @@ BoardStat::BoardStat(const BoardBin& b, const BoardGeometry& g, BoardBitmap mark
 
 char BoardStat::unit_symbol(unsigned n) const
 {
-    const unsigned mask = 1 << n;
+    const BoardBitmap mask = BIT_MASK(n);
     if (mask & marker)
     {
         return '*';
@@ -50,7 +50,7 @@ unsigned BoardGeometry::near_at(unsigned n, Direction d, unsigned distance) cons
 BoardBitmap BoardGeometry::near_mask(unsigned n, Direction d) const
 {
     unsigned i = near(n, d);
-    return i < N ? 1 << i : 0;
+    return i < N ? BIT_MASK(i) : 0;
 }
 
 BoardBitmap BoardGeometry::neighbours_up(unsigned n) const
@@ -75,7 +75,7 @@ BoardBitmap BoardGeometry::neighbours_at(unsigned n, unsigned distance) const
     {
         unsigned i = near_at(n, (Direction) d, distance);
         if (i < N)
-            r |= 1 << i;
+            r |= BIT_MASK(i);
     }
     return r;
 }
@@ -85,7 +85,7 @@ BoardBitmap BoardGeometry::neighbours_dir(unsigned n, Direction d) const
     BoardBitmap r = 0; 
     for (n = near(n, d); n != N; n = near(n, d)) 
     { 
-        r |= 1 << n; 
+        r |= BIT_MASK(n);
     } 
     return r;
 }

@@ -148,7 +148,11 @@ inline unsigned ply_policy_ex(unsigned units, unsigned dam_units)
 
 inline unsigned ply_policy(unsigned units, unsigned dam_units)
 {
-    return ply_policy_ex(units, dam_units) + 4;
+#if RUSSIAN_DAM_RULES
+    return ply_policy_ex(units, dam_units) + 2;
+#else
+    return ply_policy_ex(units, dam_units);
+#endif
 }
 
 #endif // AI_H

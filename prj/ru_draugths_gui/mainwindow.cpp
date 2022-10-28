@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    const unsigned size = 8;
+    const unsigned size = BOARD_SIZE;
     ui->setupUi(this);
     ui->tw->init(size);
     move_maker = 0;
@@ -75,13 +75,14 @@ void MainWindow::on_tw_cellPressed(int row, int column)
 
 void MainWindow::apply_move(const Rules::Move& m, int eval, int depth, uint64_t took_time)
 {
+    QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0+1).arg(m.n+1);
     if(depth > 0)
     {
-        QString title = QString(white_move ? is_hit ? "%1 x %2" : "%1 - %2" : is_hit ? ".. %1 x %2" : ".. %1 - %2").arg(m.n0).arg(m.n);
         title += QString("  (eval %1 depth %2 elapsed %3 ms)").arg(eval).arg(depth).arg(took_time);
-        setWindowTitle(title);
-        this->statusBar()->showMessage(title);
     }
+    setWindowTitle(title);
+    this->statusBar()->showMessage(title);
+
     start_move_index = -1;
     white_move = !white_move;
     set_board(m.b);
@@ -102,7 +103,7 @@ void MainWindow::set_board(const BoardBin& bx)
     b = bx;
     for(unsigned i = 0; i < r->bg.N; ++i)
     {
-        const unsigned mask = 1 << i;
+        const BoardBitmap mask = BIT_MASK(i);
         char c = b.own & mask ? b.dam & mask ? 'O' : 'o' : b.enemy & mask ? b.dam & mask ? 'X' : 'x' : ' ';
         ui->tw->setGameItem(i, c);
     }
@@ -138,6 +139,7 @@ void MainWindow::start_new_game()
     white_move = true;
     white_player = ui->actionWhite_AI->isChecked() ? AI : Human;
     black_player = ui->actionBlack_AI->isChecked() ? AI : Human;
+#if (BOARD_SIZE == 8)
     const  char*  str =
         "  x  x  x  x"
         "x  x  x  x  "
@@ -148,6 +150,22 @@ void MainWindow::start_new_game()
         "  o  o  o  o"
         "o  o  o  o  "
         ;
+#elif (BOARD_SIZE == 10)
+    const  char*  str =
+        "  x  x  x  x  x"
+        "x  x  x  x  x  "
+        "  x  x  x  x  x"
+        "x  x  x  x  x  "
+        ".  .  .  .  .  "
+        "  .  .  .  .  ."
+        "  o  o  o  o  o"
+        "o  o  o  o  o  "
+        "  o  o  o  o  o"
+        "o  o  o  o  o  "
+        ;
+#else
+#error "check BOARD_SIZE. Not implemented"
+#endif //0
     set_board(brd(std::string(str)));
     moves.clear();
 

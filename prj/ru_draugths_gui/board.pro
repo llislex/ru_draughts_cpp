@@ -18,7 +18,8 @@ HEADERS  += mainwindow.h \
     ../../src/utils/utils.h \
     ../../src/utils/bit_op.h \
     boardgui.h \
-    move_maker.h
+    move_maker.h \
+    ../../src/rules/settings.h
 
 
 INCLUDEPATH += ../../src/rules/ \
