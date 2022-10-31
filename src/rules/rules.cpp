@@ -1,6 +1,5 @@
 #include "rules.h"
 #include "bit_op.h"
-#include <assert.h>
 
 Rules::Rules(const BoardGeometry& bg): bg(bg), dam_target(0),dam_target_enemy(0)
 {
@@ -30,9 +29,9 @@ Rules::~Rules()
 {
 }
 
-bool Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken) const
+unsigned Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken) const
 {
-    bool result = false;
+    unsigned result = 0;
     const BoardBitmap to_hit = ways[n] & enemy & ~taken;
     if (to_hit)
     {
@@ -40,26 +39,26 @@ bool Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, M
         if (to_jump)
         {
             BoardBitmap hj = to_hit | to_jump;
-            for (int d = 3; d >= 0; --d) //up direction check first
+            for (int d = BoardGeometry::Directions - 1; d >= 0; --d) //up direction check first
             {
                 const BoardBitmap dir_mask = hj & dam_way_dir[d][n];
-                if (bitcount(dir_mask) == 2) //TODO
+                if (bitcount(dir_mask) == 2) //TODO check lut peroformance
                 {
                     const BoardBitmap new_pos_mask = to_jump & dir_mask;
                     const BoardBitmap new_taken = taken | (to_hit & dir_mask);
-                    unsigned new_n = lsb(new_pos_mask); //TODO
-                    result = true;
+                    unsigned new_n = lsb(new_pos_mask); //TODO check lut peroformance
 #if (RUSSIAN_DAM_RULES == 1)
-                    bool is_final = (dam_target & new_pos_mask) ? !_hit_dam(own, enemy, new_n, moves, new_taken, opposite_dir[d]) : !_hit(own, enemy, new_n, moves, new_taken);
+                    unsigned units_taken = (dam_target & new_pos_mask) ? _hit_dam(own, enemy, new_n, moves, new_taken, opposite_dir[d]) : _hit(own, enemy, new_n, moves, new_taken);
+
 #else
-                    //TODO majority rule is not implemented
-                    bool is_final = !_hit(own, enemy, new_n, moves, new_taken);
+                    unsigned units_taken = _hit(own, enemy, new_n, moves, new_taken);
 #endif
-                    if (is_final)
+                    if (units_taken == 0)
                     {
                         Move m = make_move(own, enemy & ~new_taken, new_n, dam_target & new_pos_mask);
                         moves.push_back(m);
                     }
+                    result = std::max(result, (units_taken + 1));
                     hj &= ~new_taken & ~new_pos_mask;
                     if (hj == 0)
                         break;
@@ -70,9 +69,9 @@ bool Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, M
     return result;
 }
 
-bool Rules::_hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken /*= 0*/, int back_dir /*= -1*/) const
+unsigned Rules::_hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken /*= 0*/, int back_dir /*= -1*/) const
 {
-    bool result = false;
+    unsigned result = 0;
     BoardBitmap all_ways = dam_ways[n];
     const BoardBitmap to_hit = all_ways & enemy & ~taken;
     if (to_hit)
@@ -109,14 +108,15 @@ bool Rules::_hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned 
                             {
                                 unsigned new_pos = take_msb(to_jump_dir);
                                 BoardBitmap new_taken = taken | BIT_MASK(hit_target);
-                                result = true;
-                                all_final &= !_hit_dam(own, enemy, new_pos, moves, new_taken, new_back_dir);
+                                const unsigned units_taken = _hit_dam(own, enemy, new_pos, moves, new_taken, new_back_dir);
+                                all_final &= (units_taken == 0);
                                 if (all_final)
                                 {
                                     Move m = make_move(own, enemy & ~new_taken, new_pos, true);
                                     m.b.dam = BIT_MASK(new_pos);
                                     final_hits.push_back(m);
                                 }
+                                result = std::max(result, (units_taken + 1));
                             } while (to_jump_dir);
                             if (all_final)
                             {
@@ -235,12 +235,16 @@ bool Rules::move_list(const BoardBin& b, Moves& m) const
         unsigned n = take_msb(own);
         const BoardBitmap mask = BIT_MASK(n);
         const bool dam = (b.dam & mask) != 0;
-        dam ?  _hit_dam(b.own & ~mask, b.enemy, n, hits) : _hit(b.own & ~mask, b.enemy, n, hits);
-        if(hits.size() > 0)
+        const unsigned units_taken = dam ?  _hit_dam(b.own & ~mask, b.enemy, n, hits) : _hit(b.own & ~mask, b.enemy, n, hits);
+        if(units_taken)
         {
-            hit_happened = true;
+            if(!hit_happened)
+            {
+                moves.clear(); //drop all moves since hit happened
+                hit_happened = true;
+            }
             _adjust_hit_list(hits, n, b.dam);
-            m.insert(m.end(), hits.begin(), hits.end());
+            moves.insert(moves.end(), hits.begin(), hits.end());
             continue;
         }
         if (!hit_happened)
@@ -248,17 +252,14 @@ bool Rules::move_list(const BoardBin& b, Moves& m) const
             dam ? _move_dam(b, n, moves) : _move(b, n, moves);
         }
     }
-    if (!hit_happened)
-    {
-        m.insert(m.end(), moves.begin(), moves.end());
-    }
+    m.insert(m.end(), moves.begin(), moves.end());
     return hit_happened;
 }
 
 //TODO remove copy&paste for enemy
-bool Rules::_hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken) const
+unsigned Rules::_hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken) const
 {
-    bool result = false;
+    unsigned result = 0;
     const BoardBitmap to_hit = ways[n] & own & ~taken;
     if (to_hit)
     {
@@ -266,7 +267,7 @@ bool Rules::_hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigne
         if (to_jump)
         {
             BoardBitmap hj = to_hit | to_jump;
-            for (int d = 3; d >= 0; --d) //up direction check first
+            for (int d = 0; d < BoardGeometry::Directions; ++d) //up direction check first
             {
                 const BoardBitmap dir_mask = hj & dam_way_dir[d][n];
                 if (bitcount(dir_mask) == 2)
@@ -274,17 +275,18 @@ bool Rules::_hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigne
                     const BoardBitmap new_pos_mask = to_jump & dir_mask;
                     const BoardBitmap new_taken = taken | (to_hit & dir_mask);
                     unsigned new_n = lsb(new_pos_mask);
-                    result = true;
+                    const unsigned units_taken = 1;
 #if (RUSSIAN_DAM_RULES == 1)
-                    bool is_final = (dam_target_enemy & new_pos_mask) ? !_hit_dam_enemy(own, enemy, new_n, moves, new_taken, opposite_dir[d]) : !_hit_enemy(own, enemy, new_n, moves, new_taken);
+                    unsigned more_units_taken = (dam_target_enemy & new_pos_mask) ? _hit_dam_enemy(own, enemy, new_n, moves, new_taken, opposite_dir[d]) : _hit_enemy(own, enemy, new_n, moves, new_taken);
 #else
-                    bool is_final = !_hit_enemy(own, enemy, new_n, moves, new_taken);
+                    unsigned more_units_taken = _hit_enemy(own, enemy, new_n, moves, new_taken);
 #endif
-                    if (is_final)
+                    if (more_units_taken == 0)
                     {
                         Move m = make_move_enemy(own & ~new_taken, enemy, new_n, dam_target_enemy & new_pos_mask);
                         moves.push_back(m);
                     }
+                    result = std::max(result, (units_taken + more_units_taken));
                     hj &= ~new_taken & ~new_pos_mask;
                     if (hj == 0)
                         break;
@@ -296,9 +298,9 @@ bool Rules::_hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigne
 }
 
 //TODO remove copy&paste for enemy
-bool Rules::_hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken /*= 0*/, int back_dir /*= -1*/) const
+unsigned Rules::_hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken /*= 0*/, int back_dir /*= -1*/) const
 {
-    bool result = false;
+    unsigned result = 0;
     BoardBitmap all_ways = dam_ways[n];
     const BoardBitmap to_hit = all_ways & own & ~taken;
     if (to_hit)
@@ -335,14 +337,16 @@ bool Rules::_hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, uns
                             {
                                 unsigned new_pos = take_msb(to_jump_dir);
                                 BoardBitmap new_taken = taken | BIT_MASK(hit_target);
-                                result = true;
-                                all_final &= !_hit_dam_enemy(own, enemy, new_pos, moves, new_taken, new_back_dir);
+                                unsigned units_taken = 1;
+                                unsigned more_units_taken = _hit_dam_enemy(own, enemy, new_pos, moves, new_taken, new_back_dir);
+                                all_final &= (more_units_taken == 0);
                                 if (all_final)
                                 {
                                     Move m = make_move_enemy(own & ~new_taken, enemy, new_pos, true);
                                     m.b.dam = BIT_MASK(new_pos);
                                     final_hits.push_back(m);
                                 }
+                                result = std::max(result, (units_taken + more_units_taken));
                             } while (to_jump_dir);
                             if (all_final)
                             {
@@ -407,12 +411,16 @@ bool Rules::move_list_enemy(const BoardBin& b, Moves& m) const
         unsigned n = take_msb(enemy);
         const BoardBitmap mask = BIT_MASK(n);
         const bool dam = (b.dam & mask) != 0;
-        dam ?  _hit_dam_enemy(b.own, b.enemy & ~mask, n, hits) : _hit_enemy(b.own, b.enemy & ~mask, n, hits);
-        if(hits.size() > 0)
+        unsigned units_taken = dam ?  _hit_dam_enemy(b.own, b.enemy & ~mask, n, hits) : _hit_enemy(b.own, b.enemy & ~mask, n, hits);
+        if(units_taken)
         {
-            hit_happened = true;
+            if(!hit_happened)
+            {
+                moves.clear();
+                hit_happened = true;
+            }
             _adjust_hit_list(hits, n, b.dam);
-            m.insert(m.end(), hits.begin(), hits.end());
+            moves.insert(moves.end(), hits.begin(), hits.end());
             continue;
         }
         if (!hit_happened)
@@ -420,10 +428,7 @@ bool Rules::move_list_enemy(const BoardBin& b, Moves& m) const
             dam ? _move_dam_enemy(b, n, moves) : _move_enemy(b, n, moves);
         }
     }
-    if (!hit_happened)
-    {
-        m.insert(m.end(), moves.begin(), moves.end());
-    }
+    m.insert(m.end(), moves.begin(), moves.end());
     return hit_happened;
 }
 

@@ -39,15 +39,15 @@ public:
 
     void _adjust_hit_list(Moves& hits, unsigned n0, BoardBitmap dam) const;
 
-    bool _hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0) const;
-    bool _hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const;
+    unsigned _hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0) const; //return number of taken units
+    unsigned _hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const; //return number of taken units
     bool _move(const BoardBin& b, unsigned n, Moves& moves) const;
     bool _move_dam(const BoardBin& b, unsigned n, Moves& moves) const;
     bool move_list(const BoardBin& b, Moves& moves) const;
 
     //TODO remove copy&paste for enemy
-    bool _hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0) const;
-    bool _hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const;
+    unsigned _hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0) const;
+    unsigned _hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const;
     bool _move_enemy(const BoardBin& b, unsigned n, Moves& moves) const;
     bool _move_dam_enemy(const BoardBin& b, unsigned n, Moves& moves) const;
     bool move_list_enemy(const BoardBin& b, Moves& moves) const;

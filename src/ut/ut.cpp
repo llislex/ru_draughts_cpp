@@ -57,7 +57,7 @@ bool ut_rules_check()
     for (unsigned i = 0; i < g.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
-        b.own = 1 << i;
+        b.own = BIT_MASK(i);
         b.enemy = r.ways[i];
         BoardStat bs(b, g);
         cout << i << endl << bs << endl;
@@ -67,7 +67,7 @@ bool ut_rules_check()
     for (unsigned i = 0; i < g.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
-        b.own = 1 << i;
+        b.own = BIT_MASK(i);
         b.enemy = r.ways2[i];
         BoardStat bs(b, g);
         cout << i << endl << bs << endl;
@@ -77,7 +77,7 @@ bool ut_rules_check()
     for (unsigned i = 0; i < g.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
-        b.own = 1 << i;
+        b.own = BIT_MASK(i);
         b.enemy = r.dam_ways[i];
         BoardStat bs(b, g);
         cout << i << endl << bs << endl;
@@ -90,7 +90,7 @@ bool ut_rules_check()
         for (int d = 0; d < 4; ++d)
         {
             BoardBin b = { 0, 0, 0 };
-            b.own = 1 << i;
+            b.own = BIT_MASK(i);
             b.enemy = r.dam_way_dir[d][i];
             BoardStat bs(b, g);
             cout << d << endl << bs << endl << hex << b.enemy << endl;
@@ -122,8 +122,9 @@ bool ut_hit_unit()
     std::vector<Rules::Move> lst;
     unsigned n = 4;
     cout << "hit n " << n << endl;
-    r._hit(b.own & ~(1 << n), b.enemy, n, lst);
-    cout << lst << endl << "done " << n << endl;
+    unsigned taken = r._hit(b.own & ~BIT_MASK(n), b.enemy, n, lst);
+    r._adjust_hit_list(lst, n, b.dam);
+    cout << taken << " taken" << endl << lst << endl << "done " << n << endl;
 
     return true;
 }
@@ -151,9 +152,9 @@ bool ut_hit_dam()
     std::vector<Rules::Move> lst;
     unsigned n = 4;
     cout << "hit n " << n << endl;
-    r._hit_dam(b.own & ~(1 << n), b.enemy, n, lst);
+    unsigned taken = r._hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
     r._adjust_hit_list(lst, n, b.dam);
-    cout << lst << endl << "done " << n << endl;
+    cout << taken << " taken" << endl << lst << endl << "done " << n << endl;
 
     return true;
 }
@@ -180,7 +181,7 @@ bool ut_hit_dam_turkey()
     std::vector<Rules::Move> lst;
     unsigned n = 19;
     cout << "hit n " << n << endl;
-    r._hit_dam(b.own & ~(1 << n), b.enemy, n, lst);
+    r._hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
     cout << lst << endl << "done " << n << endl;
 
     bool result = lst.size() == 1 && lst[0].n == 18;

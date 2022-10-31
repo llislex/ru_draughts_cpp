@@ -1,6 +1,6 @@
 #pragma once
 
-#define INTENATIONAL_DRAUGHTS 1
+#define INTENATIONAL_DRAUGHTS 0
 
 #if (INTENATIONAL_DRAUGHTS == 1) // international draughts
     #define RUSSIAN_DAM_RULES 0
