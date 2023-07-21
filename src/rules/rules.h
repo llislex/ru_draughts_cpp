@@ -14,7 +14,7 @@ struct Move
 
 class Rules
 {
-public:
+public: //TODO make protected
     std::vector<BoardBitmap> way_up; //distance 1
     std::vector<BoardBitmap> way_down; //distance 1
     std::vector<BoardBitmap> ways; //distance 1
@@ -43,17 +43,17 @@ public:
     unsigned _hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const; //return number of taken units
     bool _move(const BoardBin& b, unsigned n, Moves& moves) const;
     bool _move_dam(const BoardBin& b, unsigned n, Moves& moves) const;
-    bool move_list(const BoardBin& b, Moves& moves) const;
-
-    //TODO remove copy&paste for enemy
+    
     unsigned _hit_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0) const;
     unsigned _hit_dam_enemy(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken = 0, int back_dir = -1) const;
     bool _move_enemy(const BoardBin& b, unsigned n, Moves& moves) const;
     bool _move_dam_enemy(const BoardBin& b, unsigned n, Moves& moves) const;
-    bool move_list_enemy(const BoardBin& b, Moves& moves) const;
-
+    
+public:
     BoardBin _control_area(const BoardBin& b) const;
 
+	bool move_list(const BoardBin& b, Moves& moves) const;
+	bool move_list_enemy(const BoardBin& b, Moves& moves) const;
     BoardBin apply_move(const BoardBin& b, bool own, unsigned n0, unsigned n1) const;
 
 	Rules(const BoardGeometry& bg);
