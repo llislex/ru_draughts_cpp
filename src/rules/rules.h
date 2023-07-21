@@ -27,9 +27,9 @@ public:
 
     struct Move
     {
-        BoardBin b;
-        unsigned n0;
-        unsigned n;
+        BoardBin b;  //state after move
+        unsigned n0; //from
+        unsigned n;  //to
     };
     typedef std::vector<Move> Moves;
     Move make_move(const BoardBin& bx, unsigned n0, unsigned n, bool dam = false) const;

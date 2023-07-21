@@ -1,6 +1,6 @@
 #
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-Wall -Ofast
 
 INC += \
     -I../../src/utils \
