@@ -42,11 +42,13 @@ inline int board_error(const BoardBin& b, const BoardGeometry& g)
 
 inline ostream& operator<<(ostream& os, const BoardStat& bs)
 {
+#if 0
     const int o = bs.own_units - bs.own_dams;
     const int O = bs.own_dams;
     const int x = bs.enemy_units - bs.enemy_dams;
     const int X = bs.enemy_dams;
     os << "o:" << o << " O:" << O << " x:" << x << " X:" << X << "  err:" << board_error(bs.b, bs.g) << endl;
+#endif
     for (int r = 0; r < bs.g.size; ++r)
     {
         os << endl;
