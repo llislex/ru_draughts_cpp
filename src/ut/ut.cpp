@@ -50,49 +50,47 @@ bool ut_to_text()
 
 bool ut_rules_check()
 {
-    BoardGeometry g(8);
-    Rules r(g);
 #if 1
     cout << "way" << endl;
-    for (unsigned i = 0; i < g.N; ++i)
+    for (unsigned i = 0; i < Rules::bg.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
         b.own = BIT_MASK(i);
-        b.enemy = r.ways[i];
-        BoardStat bs(b, g);
+        b.enemy = Rules::ways[i];
+        BoardStat bs(b, Rules::bg);
         cout << i << endl << bs << endl;
     }
 
     cout << "way 2" << endl;
-    for (unsigned i = 0; i < g.N; ++i)
+    for (unsigned i = 0; i < Rules::bg.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
         b.own = BIT_MASK(i);
-        b.enemy = r.ways2[i];
-        BoardStat bs(b, g);
+        b.enemy = Rules::ways2[i];
+        BoardStat bs(b, Rules::bg);
         cout << i << endl << bs << endl;
     }
 #endif
     cout << "dam_ways" << endl;
-    for (unsigned i = 0; i < g.N; ++i)
+    for (unsigned i = 0; i < Rules::bg.N; ++i)
     {
         BoardBin b = { 0, 0, 0 };
         b.own = BIT_MASK(i);
-        b.enemy = r.dam_ways[i];
-        BoardStat bs(b, g);
+        b.enemy = Rules::dam_ways[i];
+        BoardStat bs(b, Rules::bg);
         cout << i << endl << bs << endl;
     }
 #if 1
     cout << "dam_way_dir" << endl;
-    for (unsigned i = 0; i < g.N; ++i)
+    for (unsigned i = 0; i < Rules::bg.N; ++i)
     {
         cout << i << endl;
         for (int d = 0; d < 4; ++d)
         {
             BoardBin b = { 0, 0, 0 };
             b.own = BIT_MASK(i);
-            b.enemy = r.dam_way_dir[d][i];
-            BoardStat bs(b, g);
+            b.enemy = Rules::dam_way_dir[d][i];
+            BoardStat bs(b, Rules::bg);
             cout << d << endl << bs << endl << hex << b.enemy << endl;
         }
     }
@@ -113,17 +111,15 @@ bool ut_hit_unit()
         ".  .  .  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
-    std::vector<Rules::Move> lst;
+    Rules::Moves lst;
     unsigned n = 4;
     cout << "hit n " << n << endl;
-    unsigned taken = r._hit(b.own & ~BIT_MASK(n), b.enemy, n, lst);
-    r._adjust_hit_list(lst, n, b.dam);
+    unsigned taken = Rules::_hit(b.own & ~BIT_MASK(n), b.enemy, n, lst);
+    Rules::_adjust_hit_list(lst, n, b.dam);
     cout << taken << " taken" << endl << lst << endl << "done " << n << endl;
 
     return true;
@@ -143,17 +139,15 @@ bool ut_hit_dam()
         ;
 
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
-    std::vector<Rules::Move> lst;
+    Rules::Moves lst;
     unsigned n = 4;
     cout << "hit n " << n << endl;
-    unsigned taken = r._hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
-    r._adjust_hit_list(lst, n, b.dam);
+    unsigned taken = Rules::_hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
+    Rules::_adjust_hit_list(lst, n, b.dam);
     cout << taken << " taken" << endl << lst << endl << "done " << n << endl;
 
     return true;
@@ -172,20 +166,19 @@ bool ut_hit_dam_turkey()
         ".  .  .  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
-    std::vector<Rules::Move> lst;
+    Rules::Moves lst;
     unsigned n = 19;
     cout << "hit n " << n << endl;
-    r._hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
+    Rules::_hit_dam(b.own & ~BIT_MASK(n), b.enemy, n, lst);
     cout << lst << endl << "done " << n << endl;
 
-    bool result = lst.size() == 1 && lst[0].n == 18;
-    return result;
+    /*bool result = lst.size() == 1 && lst[0].n == 18;
+    return result;*/
+    return false;
 }
 
 bool ut_move_list_1()
@@ -201,15 +194,13 @@ bool ut_move_list_1()
         "o  .  .  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list(b, moves);
+    Rules::move_list(b, moves);
     cout << moves << endl;
     return true;
 }
@@ -227,15 +218,13 @@ bool ut_move_list_2()
         "o  .  O  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list(b, moves);
+    Rules::move_list(b, moves);
     cout << moves << endl;
     return true;
 }
@@ -254,15 +243,12 @@ bool ut_move_list_3()
         "o  .  .  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
-
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list_enemy(b, moves);
+    Rules::move_list(Rules::mirror(b), moves);
     cout << moves << endl;
     return true;
 }
@@ -280,15 +266,12 @@ bool ut_move_list_4()
         "o  .  O  .  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
-
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list_enemy(b, moves);
+    Rules::move_list(Rules::mirror(b), moves);
     cout << moves << endl;
     return true;
 }
@@ -306,15 +289,13 @@ bool ut_move_list_5()
             "o o o o "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list_enemy(b, moves);
+    Rules::move_list(Rules::mirror(b), moves);
     cout << moves << endl;
     return true;
 }
@@ -342,20 +323,21 @@ bool ut_move_list_6()
             ". . * o "
             ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
 
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     Rules::Moves moves;
     cout << __FUNCTION__<< endl;
-    r.move_list_enemy(b, moves);
+    Rules::move_list(Rules::mirror(b), moves);
     cout << moves << endl;
+    /*
     bool result = moves.size() == 1 && moves[0].n == 16 && moves[0].n0 == 30;
     if(!result)
         cout << "expected:" << endl << expected << endl;
     return result;
+    */
+    return false;
 }
 
 
@@ -372,10 +354,7 @@ bool ut_dumb_play()
         "o  o  o  o  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
-
-    BoardStat bs(b, g);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     int i = 0;
@@ -383,7 +362,7 @@ bool ut_dumb_play()
     {
         Rules::Moves m;
         bool white = (i % 2) == 0;
-        white ? r.move_list(b, m) : r.move_list_enemy(b, m);
+        white ? Rules::move_list(b, m) : Rules::move_list(Rules::mirror(b), m);
         if(m.size() == 0)
         {
             cout << (white ? "black win" : "white win") << endl;
@@ -392,7 +371,7 @@ bool ut_dumb_play()
         int random_choise = rand() % m.size();
         ++i;
         cout << i << ". " << m[random_choise] << endl;
-        b = m[random_choise].b;
+        b = m[random_choise];
     }
     return true;
 }
@@ -531,15 +510,12 @@ bool ut_ai_test()
         ;
 #endif
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
-
-    BoardStat bs(b, r.bg);
+    BoardStat bs(b, Rules::bg);
     cout << bs << endl;
 
     EvaluatedMoves moves;
     TookTime t;
-    int eval = build_game_tree(b, r, false, 6, moves);
+    int eval = build_game_tree(b, false, 6, moves);
     uint64_t t0 = t.took_time_ms();
 
     //cout << "tree size " << tree.size() << endl;
@@ -569,8 +545,6 @@ bool ut_ai_play()
         "o  o  o  o  "
         ;
     BoardBin b = brd(string(str));
-    BoardGeometry g(8);
-    Rules r(g);
     bool white_turn = true;
 
     unsigned ply = 8;
@@ -582,7 +556,7 @@ bool ut_ai_play()
 
         TookTime t;
         EvaluatedMoves moves;
-        int eval = build_game_tree(b, r, white_turn, ply, moves);
+        int eval = build_game_tree(b, white_turn, ply, moves);
         EvaluatedMoves bm = moves_with_eval(moves, eval);
         if (bm.size() == 0)
         {
@@ -591,9 +565,9 @@ bool ut_ai_play()
         }
         unsigned choise = rand() % bm.size();
         uint64_t t0 = t.took_time_ms();
-        b = bm[choise].move.b;
+        b = bm[choise].move;
         white_turn = !white_turn;
-        BoardStat bs(b, r.bg);
+        BoardStat bs(b, Rules::bg);
         cout << bm[choise] <<  t0 << " ms" << " ply " << ply << endl;
         ply = ply_policy(bs.own_units + bs.enemy_units, bs.own_dams + bs.enemy_dams);
     }

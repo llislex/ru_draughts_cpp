@@ -13,9 +13,9 @@
 
 struct EvaluatedMove
 {
-    Rules::Move move;
+    BoardBin move;
     int eval;
-    EvaluatedMove(const Rules::Move& m, int eval) : move(m), eval(eval){}
+    EvaluatedMove(const BoardBin& m, int eval) : move(m), eval(eval){}
 };
 
 typedef std::vector<EvaluatedMove> EvaluatedMoves;
@@ -40,7 +40,7 @@ inline int evaluate(const BoardBin& b)
 }
 #endif
 
-inline int extended_evaluate(const BoardBin& b, const Rules& r)
+inline int extended_evaluate(const BoardBin& b)
 {
     const int own_units = bitcount(b.own);
     if (own_units == 0)
@@ -60,7 +60,7 @@ inline int extended_evaluate(const BoardBin& b, const Rules& r)
 #if 1
     if (b.dam == 0)
     {
-        const BoardBin ca = r._control_area(b);
+        const BoardBin ca = Rules::control_area(b);
         eval += bitcount(ca.own) - bitcount(ca.enemy);
     }
     else
@@ -80,22 +80,22 @@ inline EvaluatedMoves moves_with_eval(const EvaluatedMoves& moves, int eval)
     return result;
 }
 
-inline int negamax(const BoardBin& b, const Rules& r, bool white, unsigned depth, int alpha, int beta)
+inline int negamax(const BoardBin& b, bool white, unsigned depth, int alpha, int beta)
 {
     if(depth == 0)
     {
         //int eval = BoardStat(b, r.bg).evaluate();
-        int eval = extended_evaluate(b, r);
+        int eval = extended_evaluate(b);
         return white ? eval : -eval;
     }
     int result = MIN_EVAL;
     Rules::Moves moves;
-    bool is_hit = white ? r.move_list(b, moves) : r.move_list_enemy(b, moves);
+    bool is_hit = Rules::move_list(b, moves);
     if (!is_hit)
         --depth;
-    for(Rules::Moves::const_iterator m = moves.begin(); m != moves.end(); ++m)
+    for(auto brd: moves)
     {
-        int eval = negamax(m->b, r, !white, depth, -beta, -alpha);
+        int eval = negamax(brd, !white, depth, -beta, -alpha);
         result = std::max(result, -eval);
         alpha = std::max(result, alpha);
         if (alpha >= beta)
@@ -105,13 +105,14 @@ inline int negamax(const BoardBin& b, const Rules& r, bool white, unsigned depth
 }
 
 
-inline int build_game_tree(const BoardBin& b, const Rules& r, bool white, unsigned depth, EvaluatedMoves& eval_moves)
+inline int build_game_tree(const BoardBin& b, bool white, unsigned depth, EvaluatedMoves& eval_moves)
 {
+    //TODO
     int result = MIN_EVAL;
     int alpha = MIN_EVAL;
     int beta = MAX_EVAL;
     Rules::Moves moves;
-    bool is_hit = white ? r.move_list(b, moves) : r.move_list_enemy(b, moves);
+    bool is_hit = Rules::move_list(b, moves);
     if (!is_hit)
         --depth;
     if(moves.size() == 1)
@@ -119,12 +120,12 @@ inline int build_game_tree(const BoardBin& b, const Rules& r, bool white, unsign
         eval_moves.push_back(EvaluatedMove(*moves.begin(), 0));
         return 0;
     }
-    for(Rules::Moves::const_iterator m = moves.begin(); m != moves.end(); ++m)
+    for(auto m: moves)
     {
-        int eval = negamax(m->b, r, !white, depth, -beta, -alpha);
+        int eval = negamax(m, !white, depth, -beta, -alpha);
         result = std::max(result, -eval);
         //alpha = std::max(alpha, result);
-        eval_moves.push_back(EvaluatedMove(*m, -eval));
+        eval_moves.push_back(EvaluatedMove(m, -eval));
     }
     return result;
 }

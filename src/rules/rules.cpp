@@ -1,6 +1,103 @@
 #include "rules.h"
 #include "bit_op.h"
 
+
+
+
+std::vector<BoardBitmap> Rules::way_up; //distance 1
+std::vector<BoardBitmap> Rules::way_down; //distance 1
+std::vector<BoardBitmap> Rules::ways; //distance 1
+std::vector<BoardBitmap> Rules::ways2; //distance 2
+std::vector<BoardBitmap> Rules::dam_ways;
+std::vector<BoardBitmap> Rules::dam_way_dir[BoardGeometry::Directions];
+BoardGeometry Rules::bg(8);
+BoardBitmap Rules::dam_target;
+
+void Rules::_adjust_hit_list(Moves& hits, unsigned n0, BoardBitmap dam)
+{
+    //TODO
+}
+
+unsigned Rules::_hit(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken) //return number of taken units
+{
+    //TODO
+    return 0;
+}
+unsigned Rules::_hit_dam(const BoardBitmap& own, const BoardBitmap& enemy, unsigned n, Moves& moves, BoardBitmap taken, int back_dir) //return number of taken units
+{
+    //TODO
+    return 0;
+}
+bool Rules::_move(const BoardBin& b, unsigned n, Moves& moves)
+{
+    //TODO
+    return false;
+}
+bool Rules::_move_dam(const BoardBin& b, unsigned n, Moves& moves)
+{
+    //TODO
+    return false;
+}
+
+
+void Rules::init()
+{
+    dam_target = 0;
+    for (unsigned i = 0; i < bg.N; ++i) //build ways map
+    {
+        way_up.push_back(bg.neighbours_up(i));
+        way_down.push_back(bg.neighbours_down(i));
+        ways.push_back(bg.neighbours(i));
+        BoardBitmap all_ways_mask = 0;
+        for (int d = 0; d < BoardGeometry::Directions; ++d)
+        {
+            BoardBitmap way_mask = bg.neighbours_dir(i, (BoardGeometry::Direction) d);
+            dam_way_dir[d].push_back(way_mask);
+            all_ways_mask |= way_mask;
+        }
+        dam_ways.push_back(all_ways_mask);
+        ways2.push_back(bg.neighbours_at(i, 2));
+    }
+    for (int i = 0; i < bg.size / 2; ++i)
+    {
+        dam_target |= BIT_MASK(i);
+    }
+}
+
+BoardBin Rules::mirror(const BoardBin& b)
+{
+    //TODO
+    return b;
+}
+
+BoardBin Rules::control_area(const BoardBin& b)
+{
+    //TODO
+    return b;
+}
+
+bool Rules::is_hit(const BoardBin& b)
+{
+    //TODO
+    return false;
+}
+
+bool Rules::move_list(const BoardBin& b, Moves& moves)
+{
+    //TODO
+    return false;
+}
+bool Rules::hit_list(const BoardBin& b, Moves& moves)
+{
+    //TODO
+    return false;
+}
+
+
+
+
+
+#if 0
 Rules::Rules(const BoardGeometry& bg): bg(bg), dam_target(0),dam_target_enemy(0)
 {
     for (unsigned i = 0; i < bg.N; ++i) //build ways map
@@ -451,3 +548,4 @@ BoardBin Rules::_control_area(const BoardBin& b) const
     }
     return ca;
 }
+#endif

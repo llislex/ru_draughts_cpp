@@ -66,22 +66,20 @@ inline ostream& operator<<(ostream& os, const BoardStat& bs)
     return os;
 }
 
-inline ostream& operator<<(ostream& os, const Rules::Move& m)
+inline ostream& operator<<(ostream& os, const BoardBin& bx)
 {
-    BoardGeometry bg(8);
-    BoardStat bs(m.b, bg, 1 << m.n0);
-    os << bs << endl << m.n0 << "->" << m.n << endl;
-    os << endl;
+    BoardStat bs(bx, Rules::bg);
+    os << bs << endl;
     return os;
 }
 
 inline ostream& operator<<(ostream& os, const Rules::Moves& it)
 {
     int num = 1;
-    for (Rules::Moves::const_iterator i = it.begin(); i != it.end(); ++i)
+    for (auto i: it)
     {
         os << num << endl;
-        os << *i << endl;
+        os << i << endl;
         ++num;
     }
     return os;
