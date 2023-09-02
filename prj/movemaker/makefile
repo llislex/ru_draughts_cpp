@@ -13,6 +13,7 @@ SRC += \
     ../../src/rules/rules.cpp \
     ../../src/ut/ut.cpp \
     ../../src/utils/bit_op.cpp \
+    movemaker.cpp \
     main.cpp
 	
 BIN = ./bin/

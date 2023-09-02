@@ -4,19 +4,17 @@
 #include "rules.h"
 #include "utils.h"
 
-
-//using namespace std;
-#if 0
+#if 1
 const  char*  str =
-	"  x  x  x  x"
-	"x  x  x  x  "
-	"  x  x  x  x"
-	".  .  .  .  "
-	"  .  .  .  ."
-	"o  o  o  o  "
-	"  o  o  o  o"
-	"o  o  o  o  "
-	;
+    "  x  x  x  x"
+    "x  x  x  x  "
+    "  x  x  x  x"
+    ".  .  .  .  "
+    "  .  .  .  ."
+    "o  o  o  o  "
+    "  o  o  o  o"
+    "o  o  o  o  "
+    ;
 #else
 const  char*  str =
     "  x  x  x  ."
@@ -29,6 +27,13 @@ const  char*  str =
     "o  o  o  o  "
     ;
 #endif
+BoardBin b = brd(string(str));
+BoardGeometry g(8);
+Rules r(g);
+
+#if 0
+//using namespace std;
+
 typedef struct
 {
     int n;
@@ -36,9 +41,7 @@ typedef struct
     int ep;
 } stat_t;
 
-BoardBin b = brd(string(str));
-BoardGeometry g(8);
-Rules r(g);
+
 bool white_turn = true;
 stat_t g_stat = {0};
 
@@ -243,3 +246,36 @@ int main(int argc, char** argv)
     }
 	return 0;
 }
+#else
+#include "movemaker.h"
+int depth = 8;
+
+int main(int argc, char** argv)
+{
+    std::cout << "movemaker" << std::endl;
+
+
+    MoveMaker white_player(r, true);
+    MoveMaker black_player(r, false);
+
+    white_player.init(b);
+    b = white_player.make_a_best_move(depth);
+    cout << BoardStat(b, g) << endl;
+    black_player.init(b);
+    BoardBin b1 = black_player.make_a_best_move(depth);
+    cout << BoardStat(b1, g) << endl;
+    for (int i = 0; i < 5; ++i)
+    {
+        white_player.prepare_for_next_move(b, b1);
+        b = white_player.make_a_best_move(depth);
+        cout << BoardStat(b, g) << endl;
+
+        black_player.prepare_for_next_move(b1, b);
+        b1 = black_player.make_a_best_move(depth);
+        cout << BoardStat(b1, g) << endl;
+    }
+
+    return 0;
+}
+#endif
+
